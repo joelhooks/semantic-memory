@@ -14,10 +14,8 @@ You want semantic search for your AI agents but don't want to run a vector datab
 ## Install
 
 ```bash
-# Clone it
-git clone https://github.com/joelhooks/semantic-memory
-cd semantic-memory
-bun install
+# npm/bun/pnpm
+npm install semantic-memory
 
 # Need Ollama for embeddings
 brew install ollama
@@ -27,29 +25,28 @@ ollama pull mxbai-embed-large
 ## CLI
 
 ```bash
-# Store a memory
-bun src/cli.ts store "The auth flow uses JWT tokens stored in httpOnly cookies"
+# Via npx
+npx semantic-memory store "The auth flow uses JWT tokens stored in httpOnly cookies"
+npx semantic-memory find "how does authentication work"
 
-# Semantic search
-bun src/cli.ts find "how does authentication work"
+# Or install globally
+npm install -g semantic-memory
+semantic-memory store "React component patterns" --collection code
+semantic-memory find "components" --collection code
 
 # Full-text search (no embeddings)
-bun src/cli.ts find "JWT" --fts
-
-# Organize with collections
-bun src/cli.ts store "React component patterns" --collection code
-bun src/cli.ts find "components" --collection code
+semantic-memory find "JWT" --fts
 
 # Add metadata
-bun src/cli.ts store "API rate limits are 100 req/min" --metadata '{"source":"docs","priority":"high"}'
+semantic-memory store "API rate limits are 100 req/min" --metadata '{"source":"docs","priority":"high"}'
 
 # List, get, delete
-bun src/cli.ts list
-bun src/cli.ts get <id>
-bun src/cli.ts delete <id>
+semantic-memory list
+semantic-memory get <id>
+semantic-memory delete <id>
 
 # Stats
-bun src/cli.ts stats
+semantic-memory stats
 ```
 
 ## The Qdrant Pattern
@@ -62,17 +59,17 @@ Same semantic memory, different agent behaviors:
 # Code assistant - searches before generating, stores after
 TOOL_STORE_DESCRIPTION="Store code patterns after the user accepts generated code" \
 TOOL_FIND_DESCRIPTION="Search for similar code patterns. Use BEFORE writing any new code." \
-bun src/cli.ts ...
+semantic-memory find "auth patterns"
 
 # Meeting notes assistant
 TOOL_STORE_DESCRIPTION="Remember important points from meetings" \
 TOOL_FIND_DESCRIPTION="Recall what was discussed in previous meetings" \
-bun src/cli.ts ...
+semantic-memory find "Q4 planning"
 
 # Documentation helper
 TOOL_STORE_DESCRIPTION="Store documentation snippets for reference" \
 TOOL_FIND_DESCRIPTION="Search documentation. Always check before answering questions." \
-bun src/cli.ts ...
+semantic-memory find "rate limits"
 ```
 
 The description tells the LLM _when_ and _how_ to use the tool. Change the description, change the behavior. No code changes.
@@ -84,12 +81,6 @@ Drop this in `~/.config/opencode/tool/semantic-memory.ts`:
 ```typescript
 import { tool } from "@opencode-ai/plugin";
 import { $ } from "bun";
-import { join } from "path";
-
-const CLI = join(
-  process.env.HOME || "~",
-  "Code/joelhooks/semantic-memory/src/cli.ts",
-);
 
 const STORE_DESC =
   process.env.TOOL_STORE_DESCRIPTION ||
@@ -99,7 +90,7 @@ const FIND_DESC =
   "Search for relevant information using semantic similarity";
 
 async function run(args: string[]): Promise<string> {
-  const result = await $`bun ${CLI} ${args}`.text();
+  const result = await $`npx semantic-memory ${args}`.text();
   return result.trim();
 }
 
