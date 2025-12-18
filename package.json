@@ -10,7 +10,10 @@
   "scripts": {
     "dev": "bun run src/cli.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "bun run typecheck && bun run test && changeset publish"
   },
   "dependencies": {
     "@effect/platform": "^0.72.0",
